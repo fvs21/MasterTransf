@@ -27,6 +27,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>frontend</string>
 				<string>com.anonymous.frontend</string>
 			</array>
 		</dict>

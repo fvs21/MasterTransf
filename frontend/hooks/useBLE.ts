@@ -20,8 +20,6 @@ function useBLE(): BluetoothLowEnergyAPI {
         devices.findIndex((device) => nextDevice.id === device.id);
 
     const scanForPeripherals = () => {
-        console.log("Unc");
-        
         bleManager.startDeviceScan(null, null, (error, device) => {
             if (error)
                 console.log(error);

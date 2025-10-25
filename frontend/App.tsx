@@ -1,18 +1,16 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import useBLE from './hooks/useBLE';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import usePeripheral from './hooks/usePeripheral';
 
 export default function App() {
-  const {
-    requestPermissions,
-    scanForPeripherals,
-    allDevices
-  } = useBLE();
+  const { startAdvertising, stopAdverstising } = usePeripheral();
 
-  const scanForDevices = async () => {
-    const isPermissionsEnabled = await requestPermissions();
-    if (isPermissionsEnabled)
-      scanForPeripherals();
-  }
+  /**
+   *  const scanForDevices = async () => {
+      const isPermissionsEnabled = await requestPermissions();
+        if (isPermissionsEnabled)
+          scanForPeripherals();
+      }
+   */
 
   return (
     <View style={styles.container}>
@@ -20,22 +18,17 @@ export default function App() {
         You're in bro
       </Text>
       <TouchableOpacity
-        onPress={scanForDevices}
+        onPress={startAdvertising}
         style={{ marginTop: 40, backgroundColor: "red", padding: 20 }}
       >
-        <Text>Click me</Text>
+        <Text>Start</Text>
       </TouchableOpacity>
-      {allDevices.length > 0 && (
-        <FlatList
-          data={allDevices}
-          renderItem={({ item }) => (
-            <View>
-              <Text>{item.name}</Text>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      )}
+      <TouchableOpacity
+        onPress={stopAdverstising}
+        style={{ marginTop: 40, backgroundColor: "red", padding: 20 }}
+      >
+        <Text>Stop</Text>
+      </TouchableOpacity>
     </View>
   );
 }

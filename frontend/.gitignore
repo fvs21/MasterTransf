@@ -37,5 +37,10 @@ yarn-error.*
 *.tsbuildinfo
 
 # generated native folders
-/ios
+/ios/build
+/ios/Pods
+/ios/frontend.xcworkspace
+/ios/frontend.xcodeproj
+/ios/.xcode.env
+/ios/.xcode.env.local
 /android

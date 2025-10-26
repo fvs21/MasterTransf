@@ -36,20 +36,21 @@ export function CreateAccountSection({
   const handleCreateAccount = () => {
     setFeedback(null);
     const amount = parseMonetary(initialBalance);
+    // call async createAccount
+    (async () => {
+      const result = await createAccount({ alias, initialBalance: amount });
 
-    // TODO: Replace with API mutation integration once backend is available.
-    const result = createAccount({ alias, initialBalance: amount });
-
-    if (result.success) {
-      setAlias('');
-      setInitialBalance('');
-      setFeedback({
-        type: 'success',
-        message: result.message ?? 'Account created successfully.',
-      });
-    } else {
-      setFeedback({ type: 'error', message: result.message });
-    }
+      if (result.success) {
+        setAlias('');
+        setInitialBalance('');
+        setFeedback({
+          type: 'success',
+          message: result.message ?? 'Account created successfully.',
+        });
+      } else {
+        setFeedback({ type: 'error', message: result.message });
+      }
+    })();
   };
 
   return (

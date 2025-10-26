@@ -41,6 +41,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="terminal"
+        options={{
+          title: 'Terminal',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="creditcard" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

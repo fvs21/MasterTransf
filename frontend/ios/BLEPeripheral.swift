@@ -9,11 +9,18 @@ import Foundation
 import CoreBluetooth
 import os.log
 
+struct Transaction: Codable {
+  let receiver: String
+  let amount: Float32
+  let secureToken: String
+  let concept: String?
+};
+
 final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
   static let shared = BLEPeripheral()
   
   private lazy var manager: CBPeripheralManager = {
-    CBPeripheralManager(delegate: self, queue: nil);
+    return CBPeripheralManager(delegate: self, queue: nil);
   }()
   
   private let serviceUUID = CBUUID(string: "1D83F5C9-5ED8-43FB-B3C3-A9806CF73558");
@@ -24,7 +31,8 @@ final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
   private var isAdvertising = false;
   private var outQueue: [Data] = [];
   private var sending = false;
-
+  
+  private var transactionData: Transaction?
   
   private override init() {
     super.init();
@@ -48,7 +56,7 @@ final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
     manager.add(service)
   }
   
-  func startAdvertising(receiverName: String) {
+  func startAdvertising(receiverName: String, transactionData: Transaction) {
     guard manager.state == .poweredOn else {
       os_log("Manager is not poweredOn")
       return;
@@ -65,6 +73,8 @@ final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
     
     manager.startAdvertising(adv);
     isAdvertising = true;
+    
+    self.transactionData = transactionData
   }
   
   func stopAdvertising() {
@@ -72,16 +82,47 @@ final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
     isAdvertising = false;
   }
   
-  func send(text: String) {
-    guard let d = text.data(using: .utf8) else { return };
+  private func enqueue(_ data: Data) {
+    let maxChunk = 180;
+    var idx = 0;
     
-    let success = manager.updateValue(d, for: txCharacteristics, onSubscribedCentrals: nil);
+    while idx < data.count {
+      let end = min(idx + maxChunk, data.count);
+      outQueue.append(data.subdata(in: idx..<end))
+      idx = end
+    }
     
-    if !success {
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-        self?.send(text: text);
+    drainQueue();
+  }
+  
+  private func drainQueue() {
+    guard manager.state == .poweredOn,
+      txCharacteristics != nil,
+      primaryCentral != nil,
+      sending == false,
+      outQueue.isEmpty == false else { return }
+    
+    sending = true
+    defer { sending = false }
+    
+    while !outQueue.isEmpty {
+      let chunk = outQueue[0];
+      let ok = manager.updateValue(chunk, for: txCharacteristics, onSubscribedCentrals: nil);
+      
+      if ok {
+        outQueue.removeFirst();
+      } else {
+        break;
       }
     }
+  }
+  
+  func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+      drainQueue()
+  }
+  
+  func send(data: Data) {
+    enqueue(data);
   }
   
   private func sendBusy(to central: CBCentral) {
@@ -98,7 +139,16 @@ final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
       
       if isAdvertising { stopAdvertising() }
       
-      send(text: "HELLO");
+      do {
+        let jsonData = try JSONEncoder().encode(transactionData)
+        
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+          send(data: jsonData)
+        }
+      } catch {
+        print(error)
+      }
+      
     } else if central.identifier != primaryCentral?.identifier {
       sendBusy(to: central);
     }

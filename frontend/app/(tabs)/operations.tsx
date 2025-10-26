@@ -10,14 +10,15 @@ import { CreateAccountSection } from "@/components/operations/CreateAccountSecti
 import { DepositSection } from "@/components/operations/DepositSection";
 import { TransferSection } from "@/components/operations/TransferSection";
 import { TransferenciaSection } from "@/components/operations/TransferenciaSection";
+import { TapToPaySection } from "@/components/operations/TapToPaySection";
 
 export default function OperationsScreen() {
   const [openSection, setOpenSection] = useState<
-    "create" | "deposit" | "transfer" | "transferencia" | null
+    "create" | "deposit" | "transfer" | "transferencia" | "tapToPay" | null
   >(null);
 
   const toggleSection = (
-    section: "create" | "deposit" | "transfer" | "transferencia"
+    section: "create" | "deposit" | "transfer" | "transferencia" | "tapToPay"
   ) => {
     setOpenSection((current) => (current === section ? null : section));
   };
@@ -58,6 +59,10 @@ export default function OperationsScreen() {
         <TransferenciaSection
           isOpen={openSection === "transferencia"}
           onToggle={() => toggleSection("transferencia")}
+        />
+        <TapToPaySection
+          isOpen={openSection === "tapToPay"}
+          onToggle={() => toggleSection("tapToPay")}
         />
       </View>
     </ParallaxScrollView>

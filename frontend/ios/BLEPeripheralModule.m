@@ -9,6 +9,8 @@
 #import <React/RCTBridgeModule.h>
 
 @interface RCT_EXTERN_MODULE(BLEPeripheralModule, NSObject)
-RCT_EXTERN_METHOD(startPeripheral: (NSString *)receiverName)
+RCT_EXTERN_METHOD(startPeripheral: (NSString *)receiverName
+                  transaction: (NSDictionary*)transaction)
 RCT_EXTERN_METHOD(stopPeripheral)
+RCT_EXTERN_METHOD(send:(NSString *)data)
 @end

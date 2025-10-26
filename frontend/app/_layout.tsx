@@ -9,6 +9,7 @@ import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { BankingProvider } from "@/context/BankingContext";
+import { TerminalProvider } from "@/context/TerminalContext";
 
 export const unstable_settings = { anchor: "(tabs)" };
 
@@ -43,7 +44,9 @@ export default function RootLayout() {
       <ThemeProvider value={DefaultTheme}>
         <AuthProvider>
           <BankingProvider>
-            <RootNavigator />
+            <TerminalProvider>
+              <RootNavigator />
+            </TerminalProvider>
           </BankingProvider>
         </AuthProvider>
       </ThemeProvider>
@@ -63,15 +66,21 @@ function RootNavigator() {
 
   return (
     <Stack>
-      <Stack.Screen
+      {/**
+       * <Stack.Screen
         name="login"
         options={{ headerShown: false }}
         redirect={Boolean(user)}
       />
+       */}
       <Stack.Screen
         name="(tabs)"
         options={{ headerShown: false }}
-        redirect={!user}
+        //redirect={!user}
+      />
+      <Stack.Screen
+        name="terminal"
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="modal"

@@ -1,4 +1,7 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 import uvicorn # Para correr el servidor
+from app.routes import payments
 
+app=FastAPI(title="HackMTY Banking Backend", version=1.0)
+
+app.include_router(payments.router)

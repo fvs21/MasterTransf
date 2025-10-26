@@ -1,4 +1,7 @@
-from nessie.client import Client
+import os
 
-# Singleton client shared across service modules
-curr_client = Client()
+from dotenv import load_dotenv
+
+load_dotenv()  # loads .env file with CAPITAL_API_KEY=your_key_here
+
+API_KEY = os.getenv("NESSIE_API_KEY")

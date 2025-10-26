@@ -1,15 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Modal, Pressable } from "react-native";
+import { StyleSheet, View, Modal, Pressable, TouchableOpacity } from "react-native";
 import { Stack } from "expo-router";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import useBLE from "@/hooks/useBLE";
+import { BASE_URL } from "@/api";
+import axios from "axios";
 
 interface NotificationData {
-    receiver: string;
+    payee_id: string;
     amount: string;
     secureToken: string;
     concept: string;
+    receiver: string;
 }
 
 export default function TapToPaySimulator() {
@@ -46,6 +49,7 @@ export default function TapToPaySimulator() {
             }
 
             stopScan();
+            setStartScan(false);
 
             const best = [...allDevices].sort(
                 (a, b) => (b.rssi ?? -999) - (a.rssi ?? -999)
@@ -55,22 +59,33 @@ export default function TapToPaySimulator() {
 
             await connectAndSubscribe(best.id, (msg) => {
                 try {
-
                     const data = JSON.parse(msg);
+                    console.log("Received message:", data);
                     setNotificationData({
-                        receiver: data.receiver || "Unknown",
+                        payee_id: data.payeeId || "Unknown",
                         amount: data.amount || "0.00",
                         secureToken: data.secureToken || "Unknown",
-                        concept: data.concept || "No concept provided"
+                        concept: data.concept || "No concept provided",
+                        receiver: "Alex Fitzmaurice"
                     });
                     setModalVisible(true);
                 } catch (error) {
                     console.error("Failed to parse notification:", error);
                 }
             });
-        })();
+        })().catch(console.error);
     }, [allDevices]);
 
+    const completeTransfer = async () => {
+        if (!notificationData) return;
+
+        try {
+            const { data } = await axios.post(`${BASE_URL}/api/payments/transfer`, notificationData);
+            console.log("Transfer completed:", data);
+        } catch (error) {
+            console.error("Failed to complete transfer:", error);
+        }
+    };
 
     return (
         <>
@@ -157,7 +172,12 @@ export default function TapToPaySimulator() {
                                     <ThemedText style={styles.modalValue}>{notificationData?.concept}</ThemedText>
                                 </View>
                             </View>
-
+                            <TouchableOpacity
+                                style={styles.modalButton}
+                                onPress={completeTransfer}
+                            >
+                                <ThemedText style={styles.modalButtonText}>Complete Transfer</ThemedText>
+                            </TouchableOpacity>
                             <Pressable
                                 style={styles.modalButton}
                                 onPress={() => setModalVisible(false)}
@@ -345,6 +365,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 4,
+        marginVertical: 8
     },
     modalButtonText: {
         fontSize: 16,

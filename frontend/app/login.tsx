@@ -16,8 +16,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useRouter } from "expo-router";
 
-const REGISTER_URL = "http://localhost/api/users";
-
 export default function LoginScreen() {
   const { login } = useAuth();
   const router = useRouter();
@@ -27,18 +25,7 @@ export default function LoginScreen() {
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isRegisterFormVisible, setIsRegisterFormVisible] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [isRegisteringRequest, setIsRegisteringRequest] = useState(false);
-  const [registerSuccess, setRegisterSuccess] = useState<string | null>(null);
-  const [registerError, setRegisterError] = useState<string | null>(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [streetNumber, setStreetNumber] = useState("");
-  const [streetName, setStreetName] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zip, setZip] = useState("");
 
   const handleSignIn = async () => {
     if (isAuthenticating) {
@@ -60,83 +47,9 @@ export default function LoginScreen() {
     }
   };
 
-  const handleToggleRegister = () => {
-    setIsRegisterFormVisible((current) => !current);
-    setRegisterError(null);
-    setRegisterSuccess(null);
+  const handleGoToRegister = () => {
+    router.push("/register");
   };
-
-  const handleRegister = async () => {
-    if (isRegisteringRequest) {
-      return;
-    }
-
-    setRegisterError(null);
-    setRegisterSuccess(null);
-
-    if (
-      !firstName.trim() ||
-      !lastName.trim() ||
-      !streetNumber.trim() ||
-      !streetName.trim() ||
-      !city.trim() ||
-      !state.trim() ||
-      !zip.trim()
-    ) {
-      setRegisterError("Completa todos los campos para crear el usuario.");
-      return;
-    }
-
-    setIsRegisteringRequest(true);
-    try {
-      const response = await fetch(REGISTER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          streetNumber: streetNumber.trim(),
-          streetName: streetName.trim(),
-          city: city.trim(),
-          state: state.trim(),
-          zip: zip.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        let message = "No se pudo registrar el usuario.";
-        try {
-          const payload = await response.json();
-          if (typeof payload?.message === "string") {
-            message = payload.message;
-          }
-        } catch {
-          // Ignorar si la respuesta no es JSON
-        }
-        setRegisterError(message);
-        return;
-      }
-
-      setRegisterSuccess(
-        "Usuario creado. Ahora puedes iniciar sesion con tu nickname."
-      );
-      setFirstName("");
-      setLastName("");
-      setStreetNumber("");
-      setStreetName("");
-      setCity("");
-      setState("");
-      setZip("");
-    } catch {
-      setRegisterError("Error de red. Intenta de nuevo.");
-    } finally {
-      setIsRegisteringRequest(false);
-    }
-  };
-
-  const scrollAlignment = isRegisterFormVisible
-    ? styles.scrollExpand
-    : styles.scrollCenter;
 
   return (
     <ThemedView style={styles.screen}>
@@ -145,14 +58,14 @@ export default function LoginScreen() {
         style={styles.keyboardContainer}
       >
         <ScrollView
-          contentContainerStyle={[styles.scrollContent, scrollAlignment]}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.container}>
             <View style={styles.header}>
-              <ThemedText type="title">Bienvenido</ThemedText>
+              <ThemedText type="title">Welcome</ThemedText>
               <ThemedText style={styles.subtitle}>
-                Ingresa con tu nickname y la contrasena para acceder a tu banca.
+                Enter your nickname and password to access your banking.
               </ThemedText>
             </View>
 
@@ -161,7 +74,7 @@ export default function LoginScreen() {
               <TextInput
                 value={nickname}
                 onChangeText={setNickname}
-                placeholder="Ej. hbarrera"
+                placeholder="e.g. jsmith"
                 placeholderTextColor="rgba(148,163,184,0.7)"
                 autoCapitalize="none"
                 style={[
@@ -175,11 +88,11 @@ export default function LoginScreen() {
                 ]}
               />
 
-              <ThemedText type="defaultSemiBold">Contrasena</ThemedText>
+              <ThemedText type="defaultSemiBold">Password</ThemedText>
               <TextInput
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Contrasena"
+                placeholder="Password"
                 placeholderTextColor="rgba(148,163,184,0.7)"
                 secureTextEntry
                 style={[
@@ -200,7 +113,7 @@ export default function LoginScreen() {
               )}
 
               <Button
-                title={isAuthenticating ? "Ingresando..." : "Iniciar sesion"}
+                title={isAuthenticating ? "Signing in..." : "Sign in"}
                 onPress={handleSignIn}
                 variant="primary"
                 fullWidth
@@ -208,10 +121,6 @@ export default function LoginScreen() {
                 disabled={isAuthenticating}
               />
 
-              <ThemedText style={styles.hint}>
-                Tip: la contrasena de demo es {`"123"`}. Puedes cambiarla cuando
-                conectes la API real.
-              </ThemedText>
             </View>
 
             <View style={styles.divider}>
@@ -223,199 +132,12 @@ export default function LoginScreen() {
             </View>
 
             <Button
-              title={
-                isRegisterFormVisible
-                  ? "Cerrar registro"
-                  : "Crear nuevo usuario"
-              }
-              onPress={handleToggleRegister}
+              title="Create new account"
+              onPress={handleGoToRegister}
               variant="secondary"
               fullWidth
               style={styles.buttonSpacing}
             />
-
-            {isRegisterFormVisible && (
-              <View style={styles.registerForm}>
-                <ThemedText type="subtitle">Registro rapido</ThemedText>
-                <ThemedText style={styles.registerCopy}>
-                  Completa tus datos personales y direccion. Esta informacion
-                  solo se usa para la demo.
-                </ThemedText>
-
-                <View style={styles.inlineFields}>
-                  <View style={styles.inlineField}>
-                    <ThemedText type="defaultSemiBold">Nombre</ThemedText>
-                    <TextInput
-                      value={firstName}
-                      onChangeText={setFirstName}
-                      placeholder="Ej. Hector"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                  <View style={styles.inlineField}>
-                    <ThemedText type="defaultSemiBold">Apellido</ThemedText>
-                    <TextInput
-                      value={lastName}
-                      onChangeText={setLastName}
-                      placeholder="Ej. Barrera"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                </View>
-
-                <View style={styles.inlineFields}>
-                  <View style={[styles.inlineField, styles.inlineFieldSmall]}>
-                    <ThemedText type="defaultSemiBold">No.</ThemedText>
-                    <TextInput
-                      value={streetNumber}
-                      onChangeText={setStreetNumber}
-                      placeholder="123"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                  <View style={styles.inlineField}>
-                    <ThemedText type="defaultSemiBold">Calle</ThemedText>
-                    <TextInput
-                      value={streetName}
-                      onChangeText={setStreetName}
-                      placeholder="Ej. Av. Fundadores"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                </View>
-
-                <View style={styles.inlineFields}>
-                  <View style={styles.inlineField}>
-                    <ThemedText type="defaultSemiBold">Ciudad</ThemedText>
-                    <TextInput
-                      value={city}
-                      onChangeText={setCity}
-                      placeholder="Ej. Monterrey"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                  <View style={styles.inlineField}>
-                    <ThemedText type="defaultSemiBold">Estado</ThemedText>
-                    <TextInput
-                      value={state}
-                      onChangeText={setState}
-                      placeholder="Ej. Nuevo Leon"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                </View>
-
-                <View style={styles.inlineFields}>
-                  <View style={[styles.inlineField, styles.inlineFieldSmall]}>
-                    <ThemedText type="defaultSemiBold">CP</ThemedText>
-                    <TextInput
-                      value={zip}
-                      onChangeText={setZip}
-                      placeholder="64000"
-                      placeholderTextColor="rgba(148,163,184,0.7)"
-                      keyboardType="numeric"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: palette.icon,
-                          backgroundColor:
-                            colorScheme === "light" ? "#F8FAFC" : "#1E293B",
-                          color:
-                            colorScheme === "light" ? "#0F172A" : "#E2E8F0",
-                        },
-                      ]}
-                    />
-                  </View>
-                </View>
-
-                {registerError && (
-                  <ThemedText style={[styles.errorLabel, { color: "#DC2626" }]}>
-                    {registerError}
-                  </ThemedText>
-                )}
-
-                {registerSuccess && (
-                  <ThemedText
-                    style={[styles.successLabel, { color: "#16A34A" }]}
-                  >
-                    {registerSuccess}
-                  </ThemedText>
-                )}
-
-                <Button
-                  title={
-                    isRegisteringRequest
-                      ? "Registrando usuario..."
-                      : "Registrar usuario"
-                  }
-                  onPress={handleRegister}
-                  variant="success"
-                  fullWidth
-                  style={styles.buttonSpacing}
-                  disabled={isRegisteringRequest}
-                />
-              </View>
-            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -433,13 +155,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
     paddingVertical: 32,
-  },
-  scrollCenter: {
     flexGrow: 1,
     justifyContent: "center",
-  },
-  scrollExpand: {
-    flexGrow: 1,
   },
   container: {
     gap: 28,
@@ -464,15 +181,7 @@ const styles = StyleSheet.create({
   buttonSpacing: {
     marginTop: 12,
   },
-  hint: {
-    opacity: 0.6,
-    fontSize: 12,
-    marginTop: 4,
-  },
   errorLabel: {
-    fontSize: 13,
-  },
-  successLabel: {
     fontSize: 13,
   },
   divider: {
@@ -489,24 +198,5 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     textTransform: "uppercase",
     fontSize: 11,
-  },
-  registerForm: {
-    marginTop: 20,
-    gap: 14,
-  },
-  registerCopy: {
-    opacity: 0.75,
-    lineHeight: 18,
-  },
-  inlineFields: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  inlineField: {
-    flex: 1,
-    gap: 8,
-  },
-  inlineFieldSmall: {
-    flex: 0.4,
   },
 });

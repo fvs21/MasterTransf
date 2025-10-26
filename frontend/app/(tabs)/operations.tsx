@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 
 import { CreateAccountSection } from "@/components/operations/CreateAccountSection";
 import { DepositSection } from "@/components/operations/DepositSection";
@@ -24,25 +23,20 @@ export default function OperationsScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#0F172A", dark: "#060B17" }}
-      headerImage={
-        <IconSymbol
-          name="sparkles"
-          size={260}
-          color="rgba(59,130,246,0.35)"
-          style={styles.operationsHeaderIcon}
-        />
-      }
-    >
-      <View style={styles.container}>
-        <ThemedView style={styles.intro}>
-          <ThemedText type="title">Operaciones</ThemedText>
-          <ThemedText style={styles.introCopy}>
-            Simula las gestiones basicas de tu banca. Completa los formularios y
-            registra los movimientos en segundos.
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <ThemedText type="title" style={styles.title}>Operations</ThemedText>
+          <ThemedText style={styles.subtitle}>
+            Manage your accounts and perform transactions
           </ThemedText>
-        </ThemedView>
+        </View>
+
+        <View style={styles.container}>
 
         <CreateAccountSection
           isOpen={openSection === "create"}
@@ -65,26 +59,36 @@ export default function OperationsScreen() {
           onToggle={() => toggleSection("tapToPay")}
         />
       </View>
-    </ParallaxScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    opacity: 0.6,
+  },
   container: {
-    gap: 24,
-    paddingBottom: 64,
-  },
-  intro: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  introCopy: {
-    opacity: 0.75,
-    lineHeight: 20,
-  },
-  operationsHeaderIcon: {
-    position: "absolute",
-    bottom: -60,
-    left: -30,
+    gap: 16,
   },
 });

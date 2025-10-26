@@ -15,6 +15,10 @@ export const unstable_settings = { anchor: "(tabs)" };
 
 SplashScreen.preventAutoHideAsync(); // mantiene el splash hasta que pintemos con el tema correcto
 
+import { LogBox } from "react-native";
+
+LogBox.ignoreAllLogs();
+
 export default function RootLayout() {
   // Tema fijo en modo claro
   const [appIsReady, setAppIsReady] = useState(false);
@@ -73,6 +77,10 @@ function RootNavigator() {
         redirect={Boolean(user)}
       />
        */}
+      <Stack.Screen
+        name="register"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="(tabs)"
         options={{ headerShown: false }}

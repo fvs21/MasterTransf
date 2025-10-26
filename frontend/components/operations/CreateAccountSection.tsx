@@ -45,7 +45,7 @@ export function CreateAccountSection({
       setInitialBalance('');
       setFeedback({
         type: 'success',
-        message: result.message ?? 'Cuenta creada correctamente.',
+        message: result.message ?? 'Account created successfully.',
       });
     } else {
       setFeedback({ type: 'error', message: result.message });
@@ -55,13 +55,13 @@ export function CreateAccountSection({
   return (
     <SectionCard
       tone="create-account"
-      title="Crear nueva cuenta"
-      description="Configura un alias y, si lo necesitas, establece un saldo inicial."
+      title="Create new account"
+      description="Set an alias and, if needed, establish an initial balance."
       isOpen={isOpen}
       onToggle={onToggle}>
-      <ThemedText type="defaultSemiBold">Alias de la cuenta</ThemedText>
+      <ThemedText type="defaultSemiBold">Account alias</ThemedText>
       <TextInput
-        placeholder="Ej. Ahorro viajes"
+        placeholder="e.g. Travel savings"
         placeholderTextColor="rgba(148, 163, 184, 0.7)"
         value={alias}
         onChangeText={setAlias}
@@ -75,7 +75,7 @@ export function CreateAccountSection({
         ]}
       />
 
-      <ThemedText type="defaultSemiBold">Saldo inicial (opcional)</ThemedText>
+      <ThemedText type="defaultSemiBold">Initial balance (optional)</ThemedText>
       <TextInput
         placeholder="0.00"
         placeholderTextColor="rgba(148, 163, 184, 0.7)"
@@ -103,7 +103,7 @@ export function CreateAccountSection({
       )}
 
       <Button
-        title="Crear cuenta"
+        title="Create account"
         onPress={handleCreateAccount}
         variant="primary"
         fullWidth

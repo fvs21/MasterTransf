@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Account, Transaction, useBanking } from '@/context/BankingContext';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -59,24 +58,18 @@ export default function ActivityScreen() {
   }, [filteredTransactions, activeFilter]);
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#082F49', dark: '#02131F' }}
-      headerImage={
-        <IconSymbol
-          name="list.bullet.rectangle"
-          size={280}
-          color="rgba(148, 163, 184, 0.35)"
-          style={styles.activityHeaderIcon}
-        />
-      }>
-      <ThemedView style={styles.screen}>
-        <ThemedView style={styles.headerBlock}>
-          <ThemedText type="title">Actividad</ThemedText>
-          <ThemedText style={styles.headerDescription}>
-            Revisa tus movimientos recientes y filtra por cuenta para validar entradas y salidas de
-            dinero.
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <ThemedText type="title" style={styles.title}>Activity</ThemedText>
+          <ThemedText style={styles.subtitle}>
+            Review your transactions and filter by account
           </ThemedText>
-        </ThemedView>
+        </View>
 
         <View
           style={[
@@ -87,24 +80,24 @@ export default function ActivityScreen() {
             },
           ]}>
           <View style={styles.summaryRow}>
-            <ThemedText type="defaultSemiBold">Entradas</ThemedText>
+            <ThemedText type="defaultSemiBold">Incoming</ThemedText>
             <ThemedText style={styles.summaryPositive}>
               {formatCurrency(totals.incoming, resolveCurrency(accounts, activeFilter))}
             </ThemedText>
           </View>
           <View style={styles.summaryRow}>
-            <ThemedText type="defaultSemiBold">Salidas</ThemedText>
+            <ThemedText type="defaultSemiBold">Outgoing</ThemedText>
             <ThemedText style={styles.summaryNegative}>
               -{formatCurrency(totals.outgoing, resolveCurrency(accounts, activeFilter))}
             </ThemedText>
           </View>
         </View>
 
-        <ThemedView style={styles.filterSection}>
-          <ThemedText type="subtitle">Filtrar por cuenta</ThemedText>
+        <View style={styles.filterSection}>
+          <ThemedText type="subtitle">Filter by account</ThemedText>
           <View style={styles.filterRow}>
             <FilterChip
-              label="Todas"
+              label="All"
               isActive={activeFilter === 'all'}
               onPress={() => setActiveFilter('all')}
               palette={palette}
@@ -121,13 +114,12 @@ export default function ActivityScreen() {
               />
             ))}
           </View>
-        </ThemedView>
+        </View>
 
         <View style={styles.timeline}>
           {filteredTransactions.length === 0 ? (
             <ThemedText style={styles.emptyState}>
-              No encontramos movimientos para este filtro. Realiza una operacion desde la pestana
-              Operaciones.
+              No transactions found for this filter. Perform an operation from the Operations tab.
             </ThemedText>
           ) : (
             filteredTransactions.map((transaction) => {
@@ -137,7 +129,16 @@ export default function ActivityScreen() {
               const supporting = buildSupportingText(transaction, accounts);
 
               return (
-                <View key={transaction.id} style={styles.timelineRow}>
+                <View 
+                  key={transaction.id} 
+                  style={[
+                    styles.timelineRow,
+                    {
+                      backgroundColor: colorScheme === 'light' ? '#FFFFFF' : '#1F2937',
+                      borderColor: colorScheme === 'light' ? '#E5E7EB' : '#374151',
+                    }
+                  ]}
+                >
                   <View
                     style={[
                       styles.timelineMarker,
@@ -171,8 +172,8 @@ export default function ActivityScreen() {
             })
           )}
         </View>
-      </ThemedView>
-    </ParallaxScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -274,28 +275,28 @@ const resolveTitle = (
   direction: ReturnType<typeof resolveDirection>,
 ) => {
   if (type === 'create-account') {
-    return 'Saldo inicial';
+    return 'Initial balance';
   }
   if (type === 'deposit') {
-    return 'Deposito';
+    return 'Deposit';
   }
   if (direction === 'out') {
-    return 'Transferencia enviada';
+    return 'Transfer sent';
   }
   if (direction === 'in') {
-    return 'Transferencia recibida';
+    return 'Transfer received';
   }
-  return 'Transferencia interna';
+  return 'Internal transfer';
 };
 
 const buildSupportingText = (transaction: Transaction, accounts: Account[]) => {
   const fromAlias =
-    accounts.find((account) => account.id === transaction.fromAccountId)?.alias ?? 'Origen externo';
+    accounts.find((account) => account.id === transaction.fromAccountId)?.alias ?? 'External source';
   const toAlias =
-    accounts.find((account) => account.id === transaction.toAccountId)?.alias ?? 'Destino externo';
+    accounts.find((account) => account.id === transaction.toAccountId)?.alias ?? 'External destination';
 
   if (transaction.type === 'deposit' || transaction.type === 'create-account') {
-    return transaction.description ?? 'Movimiento registrado';
+    return transaction.description ?? 'Registered transaction';
   }
 
   return `${fromAlias} -> ${toAlias}${
@@ -304,22 +305,35 @@ const buildSupportingText = (transaction: Transaction, accounts: Account[]) => {
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    gap: 24,
-    paddingBottom: 56,
+  safeArea: {
+    flex: 1,
   },
-  headerBlock: {
-    gap: 10,
+  scrollView: {
+    flex: 1,
   },
-  headerDescription: {
-    opacity: 0.75,
-    lineHeight: 20,
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    opacity: 0.6,
   },
   summaryCard: {
     borderWidth: 1,
     borderRadius: 16,
     padding: 18,
     gap: 12,
+    marginBottom: 8,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -336,6 +350,8 @@ const styles = StyleSheet.create({
   },
   filterSection: {
     gap: 12,
+    marginTop: 24,
+    marginBottom: 24,
   },
   filterRow: {
     flexDirection: 'row',
@@ -351,7 +367,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   timeline: {
-    gap: 16,
+    gap: 12,
   },
   emptyState: {
     opacity: 0.7,
@@ -361,10 +377,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.35)',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: 16,
-    backgroundColor: 'rgba(15, 23, 42, 0.02)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   timelineMarker: {
     width: 10,
@@ -390,10 +409,5 @@ const styles = StyleSheet.create({
   },
   timelineAmount: {
     fontSize: 15,
-  },
-  activityHeaderIcon: {
-    position: 'absolute',
-    bottom: -40,
-    right: -40,
   },
 });

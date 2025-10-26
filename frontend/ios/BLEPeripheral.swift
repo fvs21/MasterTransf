@@ -9,10 +9,16 @@ import Foundation
 import CoreBluetooth
 import os.log
 
+struct SecureToken: Codable {
+  let message: String
+  let signature: String
+}
+
 struct Transaction: Codable {
+  let payeeId: String
   let receiver: String
   let amount: Float32
-  let secureToken: String
+  let secureToken: SecureToken
   let concept: String?
 };
 
@@ -141,9 +147,11 @@ final class BLEPeripheral: NSObject, CBPeripheralManagerDelegate {
       
       do {
         let jsonData = try JSONEncoder().encode(transactionData)
+        var withNL = jsonData;
+        withNL.append(0x0A);
         
         if let jsonString = String(data: jsonData, encoding: .utf8) {
-          send(data: jsonData)
+          send(data: withNL);
         }
       } catch {
         print(error)

@@ -17,6 +17,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type ContributionListProps = {
   contributions: Contribution[];
+  isLoading: boolean;
 };
 
 // Apple Intelligence-inspired glowing border component
@@ -113,11 +114,35 @@ function AppleIntelligenceGlow() {
     </View>
   );
 }
-
-export function ContributionList({ contributions }: ContributionListProps) {
+  
+export function ContributionList({ contributions, isLoading }: ContributionListProps) {
   const colorScheme = useColorScheme();
   const palette = Colors[colorScheme ?? "light"];
   const isDark = false; // App uses light mode only
+
+  if (isLoading) {
+    return (
+      <View style={styles.emptyContainer}>
+        <View style={styles.intelligenceCard}>
+          <AppleIntelligenceGlow />
+          
+          <View style={styles.emptyContent}>
+            <View style={styles.emptyIconContainer}>
+              <View style={[styles.emptyIcon, { borderColor: palette.icon + "20" }]}>
+                <ThemedText style={styles.emptyIconText}>💳</ThemedText>
+              </View>
+            </View>
+            <ThemedText type="defaultSemiBold" style={styles.emptyTitle}>
+              Setting up...
+            </ThemedText>
+            <ThemedText style={[styles.emptySubtitle, { color: palette.tint }]}>
+              Please wait...
+            </ThemedText>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   if (contributions.length === 0) {
     return (

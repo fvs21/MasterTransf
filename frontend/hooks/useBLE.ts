@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BleManager, Device } from "react-native-ble-plx";
 import { Buffer } from 'buffer';
+import { toByteArray } from "base64-js";
 global.Buffer = Buffer;
 
 const serviceUUID = "1D83F5C9-5ED8-43FB-B3C3-A9806CF73558";
@@ -18,9 +19,19 @@ interface BluetoothLowEnergyAPI {
 
 const RSSI_MIN = -40;
 
+function bytesToUtf8(u8: Uint8Array): string {
+  if (typeof TextDecoder !== "undefined") {
+    return new TextDecoder("utf-8").decode(u8);
+  }
+  let s = "";
+  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+  return s;
+}
+
 function useBLE(): BluetoothLowEnergyAPI {
     const bleManager = useMemo(() => new BleManager(), []);
     const [allDevices, setAllDevices] = useState<Device[]>([]);
+    const rxBufferRef = useRef<string>("");
 
     const requestPermissions = async () => {
         return true;
@@ -44,7 +55,7 @@ function useBLE(): BluetoothLowEnergyAPI {
                 return;
             }
 
-            if (!device) return;          
+            if (!device) return;
 
             const rssi = device.rssi ?? -999;
 
@@ -72,14 +83,31 @@ function useBLE(): BluetoothLowEnergyAPI {
                     console.warn("notify error", error);
                     return;
                 }
-                
-                const b64 = char?.value;
-                const text = b64 ? Buffer.from(b64, "base64").toString("utf8") : "";
 
-                if (text === "BUSY") {
-                    return;
+                const b64 = char?.value;
+                if (!b64) return;
+
+                const bytes = toByteArray(b64);
+                const chunk = new TextDecoder("utf-8").decode(bytes);
+                rxBufferRef.current += chunk;
+
+                let idx: number;
+                while ((idx = rxBufferRef.current.indexOf("\n")) !== -1) {
+                    const line = rxBufferRef.current.slice(0, idx);
+                    rxBufferRef.current = rxBufferRef.current.slice(idx + 1);
+
+                    if (!line) continue;
+                    if (line === "BUSY") {
+                        console.log("Peripheral is BUSY");
+                        continue;
+                    }
+
+                    try {
+                        onMsg(line);
+                    } catch (e) {
+                        console.warn("Failed to parse JSON line:", line, e);
+                    }
                 }
-                if (text) onMsg(text);
             });
         },
         [bleManager]

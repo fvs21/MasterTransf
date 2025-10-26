@@ -68,7 +68,7 @@ export function DepositSection({
       setDescription('');
       setFeedback({
         type: 'success',
-        message: result.message ?? 'Deposito registrado.',
+        message: result.message ?? 'Deposit registered.',
       });
     } else {
       setFeedback({ type: 'error', message: result.message });
@@ -78,18 +78,18 @@ export function DepositSection({
   return (
     <SectionCard
       tone="deposit"
-      title="Anadir saldo"
-      description="Selecciona una cuenta destino y registra un nuevo deposito."
+      title="Add balance"
+      description="Select a destination account and register a new deposit."
       isOpen={isOpen}
       onToggle={onToggle}>
-      <ThemedText type="defaultSemiBold">Cuenta destino</ThemedText>
+      <ThemedText type="defaultSemiBold">Destination account</ThemedText>
       <AccountSelector
         accounts={accounts}
         selectedId={selectedAccountId}
         onSelect={setSelectedAccountId}
       />
 
-      <ThemedText type="defaultSemiBold">Monto</ThemedText>
+      <ThemedText type="defaultSemiBold">Amount</ThemedText>
       <TextInput
         placeholder="0.00"
         placeholderTextColor="rgba(148, 163, 184, 0.7)"
@@ -106,9 +106,9 @@ export function DepositSection({
         ]}
       />
 
-      <ThemedText type="defaultSemiBold">Concepto</ThemedText>
+      <ThemedText type="defaultSemiBold">Description</ThemedText>
       <TextInput
-        placeholder="Ej. Pago de nomina"
+        placeholder="e.g. Payroll payment"
         placeholderTextColor="rgba(148, 163, 184, 0.7)"
         value={description}
         onChangeText={setDescription}
@@ -126,7 +126,7 @@ export function DepositSection({
 
       {currentAccount && (
         <ThemedText style={formStyles.helperText}>
-          Saldo actual: {formatCurrency(currentAccount.balance, currentAccount.currency)}
+          Current balance: {formatCurrency(currentAccount.balance, currentAccount.currency)}
         </ThemedText>
       )}
 
@@ -141,7 +141,7 @@ export function DepositSection({
       )}
 
       <Button
-        title="Registrar deposito"
+        title="Register deposit"
         onPress={handleDeposit}
         variant="success"
         fullWidth

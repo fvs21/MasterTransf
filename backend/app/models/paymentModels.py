@@ -1,15 +1,19 @@
 from pydantic import BaseModel
-
+from typing import Optional
  
 class DepositRequest(BaseModel):
     account_id: str
     medium: str = "balance"  # could be "balance" or "rewards"
     amount: float
-    description: str | None = "Bluetooth deposit"
+    concept: Optional[str] = "Bluetooth deposit"
+
+class Token(BaseModel):
+    message: str
+    signature: str
 
 class TransferRequest(BaseModel):
-    payer_id: str
     payee_id: str
     amount: float
-    medium: str = "balance"
-    description: str | None = "Bluetooth transfer"
+    concept: Optional[str] = "Bluetooth transfer"
+    secureToken: Token
+    receiver: Optional[str]

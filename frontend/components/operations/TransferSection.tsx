@@ -99,7 +99,7 @@ export function TransferSection({
       setDescription("");
       setFeedback({
         type: "success",
-        message: result.message ?? "Transferencia realizada.",
+        message: result.message ?? "Transfer completed.",
       });
     } else {
       setFeedback({ type: "error", message: result.message });
@@ -109,27 +109,27 @@ export function TransferSection({
   return (
     <SectionCard
       tone="transfer"
-      title="Transferencia entre cuentas"
-      description="Mueve saldo entre tus cuentas. Valida que el origen tenga fondos suficientes."
+      title="Transfer between accounts"
+      description="Move balance between your accounts. Verify that the source has sufficient funds."
       isOpen={isOpen}
       onToggle={onToggle}
     >
-      <ThemedText type="defaultSemiBold">Cuenta origen</ThemedText>
+      <ThemedText type="defaultSemiBold">Source account</ThemedText>
       <AccountSelector
         accounts={accounts}
         selectedId={fromAccountId}
         onSelect={setFromAccountId}
       />
 
-      <ThemedText type="defaultSemiBold">Cuenta destino</ThemedText>
+      <ThemedText type="defaultSemiBold">Destination account</ThemedText>
       <AccountSelector
         accounts={destinationCandidates}
         selectedId={toAccountId}
         onSelect={setToAccountId}
-        emptyMessage="Agrega otra cuenta para transferir fondos."
+        emptyMessage="Add another account to transfer funds."
       />
 
-      <ThemedText type="defaultSemiBold">Monto</ThemedText>
+      <ThemedText type="defaultSemiBold">Amount</ThemedText>
       <TextInput
         placeholder="0.00"
         placeholderTextColor="rgba(148, 163, 184, 0.7)"
@@ -146,9 +146,9 @@ export function TransferSection({
         ]}
       />
 
-      <ThemedText type="defaultSemiBold">Concepto</ThemedText>
+      <ThemedText type="defaultSemiBold">Description</ThemedText>
       <TextInput
-        placeholder="Ej. Ahorro mensual"
+        placeholder="e.g. Monthly savings"
         placeholderTextColor="rgba(148, 163, 184, 0.7)"
         value={description}
         onChangeText={setDescription}
@@ -166,7 +166,7 @@ export function TransferSection({
 
       {sourceAccount && (
         <ThemedText style={formStyles.helperText}>
-          Saldo disponible:{" "}
+          Available balance:{" "}
           {formatCurrency(sourceAccount.balance, sourceAccount.currency)}
         </ThemedText>
       )}
@@ -183,7 +183,7 @@ export function TransferSection({
       )}
 
       <Button
-        title="Transferir"
+        title="Transfer"
         onPress={handleTransfer}
         variant="info"
         fullWidth

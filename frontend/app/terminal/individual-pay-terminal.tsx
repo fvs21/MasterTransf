@@ -29,7 +29,7 @@ export default function IndividualPayTerminal() {
   const [paymentData, setPaymentData] = useState<{
     amount: number;
     concept: string;
-    payer_id: string;
+    payer: string;
   } | null>(null);
 
   const { startAdvertising, stopAdvertising } = usePeripheral();
@@ -260,7 +260,7 @@ export default function IndividualPayTerminal() {
               <View style={styles.modalRow}>
                 <ThemedText style={styles.modalLabel}>Payer ID</ThemedText>
                 <ThemedText type="defaultSemiBold" style={styles.modalValue}>
-                  {paymentData?.payer_id}
+                  {paymentData?.payer}
                 </ThemedText>
               </View>
             </View>

@@ -18,7 +18,8 @@ class CryptoService:
 
     def verify_signature(self, message: bytes, signature_b64: str) -> bool:
         try:
-            signature = base64.b64decode(signature_b64)
+            message = base64.b64decode(message, validate=True)
+            signature = base64.b64decode(signature_b64, validate=True)
             self.public_key.verify(
                 signature,
                 message,

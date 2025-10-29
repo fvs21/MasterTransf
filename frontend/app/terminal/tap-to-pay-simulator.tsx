@@ -82,6 +82,9 @@ export default function TapToPaySimulator() {
         try {
             const { data } = await axios.post(`${BASE_URL}/api/payments/transfer`, notificationData);
             console.log("Transfer completed:", data);
+
+            setModalVisible(false);
+            setNotificationData(null);
         } catch (error) {
             console.error("Failed to complete transfer:", error);
         }

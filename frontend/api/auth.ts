@@ -44,9 +44,6 @@ export type TokenResponse = {
   message?: string;
 };
 
-/**
- * Get authentication token from backend
- */
 export const getToken = async (): Promise<string> => {
   try {
     const response = await apiClient.post<TokenResponse>('/api/token/');
@@ -62,9 +59,6 @@ export const getToken = async (): Promise<string> => {
   }
 };
 
-/**
- * Login user with nickname and password
- */
 export const login = async (nickname: string, password: string): Promise<LoginResponse> => {
   try {
     const response = await apiClient.post<LoginResponse>('/api/auth/login', {
@@ -73,12 +67,10 @@ export const login = async (nickname: string, password: string): Promise<LoginRe
     });
 
     if (response.data.success) {
-      // Store token if provided
       if (response.data.token) {
         await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.data.token);
       }
       
-      // Store user data if provided
       if (response.data.user) {
         await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
       }
@@ -88,7 +80,6 @@ export const login = async (nickname: string, password: string): Promise<LoginRe
   } catch (error: any) {
     console.error('Login error:', error);
     
-    // Handle error response
     if (error.response?.data) {
       return {
         success: false,
@@ -103,20 +94,15 @@ export const login = async (nickname: string, password: string): Promise<LoginRe
   }
 };
 
-/**
- * Register new user
- */
 export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
   try {
     const response = await apiClient.post<RegisterResponse>('/api/users', data);
     
     if (response.data.success) {
-      // Store token if provided
       if (response.data.token) {
         await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.data.token);
       }
       
-      // Store user data if provided
       if (response.data.user) {
         await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
       }
@@ -140,9 +126,6 @@ export const register = async (data: RegisterRequest): Promise<RegisterResponse>
   }
 };
 
-/**
- * Logout user - clear stored data
- */
 export const logout = async (): Promise<void> => {
   try {
     await AsyncStorage.multiRemove([STORAGE_KEYS.ACCESS_TOKEN, STORAGE_KEYS.USER]);
@@ -152,9 +135,6 @@ export const logout = async (): Promise<void> => {
   }
 };
 
-/**
- * Get stored user data
- */
 export const getStoredUser = async (): Promise<User | null> => {
   try {
     const userJson = await AsyncStorage.getItem(STORAGE_KEYS.USER);
@@ -165,9 +145,6 @@ export const getStoredUser = async (): Promise<User | null> => {
   }
 };
 
-/**
- * Get stored token
- */
 export const getStoredToken = async (): Promise<string | null> => {
   try {
     return await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const BASE_HOST = "8988799448820e.lhr.life";
+export const BASE_HOST = "4a98cd703049ec.lhr.life";
 export const BASE_URL = `https://${BASE_HOST}`;
 
 // Storage keys

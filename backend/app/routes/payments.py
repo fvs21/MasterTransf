@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/payments", tags=["payments"])
 async def make_transfer(body: TransferRequest, crypto_service: CryptoService = Depends(get_crypto_service)):
     token = body.secureToken
 
-    if not crypto_service.verify_signature(token.message.encode("utf-8"), token.signature.encode("utf-8")) and False:
+    if not crypto_service.verify_signature(token.message, token.signature):
         raise HTTPException(status_code=401, detail="Invalid signature") 
 
     try:
@@ -39,8 +39,6 @@ async def make_transfer(body: TransferRequest, crypto_service: CryptoService = D
                 detail=f"Transfer failed: {response.text}"
             )
         '''
-
-        print(f"On broadcast -> single/{body.payee_id}")
 
         await manager.broadcast(f"single/{body.payee_id}", json.dumps({
             "type": "transfer-received",
@@ -126,7 +124,6 @@ def create_account(customer_id: str, body: CreateAccountRequest):
 
 @router.websocket("/ws/terminal/single/{payee_id}")
 async def websocket_endpoint(websocket: WebSocket, payee_id: str):
-    print(f"On websocket -> single/{payee_id}")
     await manager.connect(f"single/{payee_id}", websocket)
     try:
         while True:
